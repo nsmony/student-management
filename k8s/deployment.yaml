@@ -15,8 +15,8 @@ spec:
     spec:
       containers:
         - name: api-gateway
-          image: nsmony/api-gateway:latest
-          imagePullPolicy: IfNotPresent
+          image: nsmony/final-exam-api-gateway:v1
+          imagePullPolicy: Always
           ports:
             - containerPort: 8080
           env:
@@ -29,8 +29,8 @@ spec:
             - name: SEARCH_URL
               value: "http://search-service:8082"
         - name: registration-service
-          image: nsmony/registration-service:latest
-          imagePullPolicy: IfNotPresent
+          image: nsmony/final-exam-registration:v1
+          imagePullPolicy: Always
           ports:
             - containerPort: 8081
           env:
@@ -59,8 +59,8 @@ spec:
     spec:
       containers:
         - name: search-service
-          image: nsmony/search-service:latest
-          imagePullPolicy: IfNotPresent
+          image: nsmony/final-exam-search:v1
+          imagePullPolicy: Always
           ports:
             - containerPort: 8082
           env:
