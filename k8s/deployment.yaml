@@ -1,0 +1,73 @@
+# Pod 1: API Gateway + Registration microservice
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gateway-registration-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gateway-registration
+  template:
+    metadata:
+      labels:
+        app: gateway-registration
+    spec:
+      containers:
+        - name: api-gateway
+          image: nsmony/api-gateway:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: PORT
+              value: "8080"
+            # same pod, so registration is reached through localhost
+            - name: REGISTRATION_URL
+              value: "http://127.0.0.1:8081"
+            # different pod, so use the Service name
+            - name: SEARCH_URL
+              value: "http://search-service:8082"
+        - name: registration-service
+          image: nsmony/registration-service:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8081
+          env:
+            - name: PORT
+              value: "8081"
+            - name: MONGO_URI
+              valueFrom:
+                secretKeyRef:
+                  name: app-secret
+                  key: DB_URL
+---
+# Pod 2: Search microservice
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: search-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: search
+  template:
+    metadata:
+      labels:
+        app: search
+    spec:
+      containers:
+        - name: search-service
+          image: nsmony/search-service:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8082
+          env:
+            - name: PORT
+              value: "8082"
+            - name: MONGO_URI
+              valueFrom:
+                secretKeyRef:
+                  name: app-secret
+                  key: DB_URL
